@@ -1,3 +1,2 @@
 - Your Mac OS Matrix
 - Command prompt made for macOS
-- Python 3 and osascript
