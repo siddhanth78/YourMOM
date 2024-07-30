@@ -117,8 +117,6 @@ def get_input(pathlist, currpath):
                         com_.startswith("cd") or
                         com_.startswith("mkdir") or
                         com_.startswith("rm") or
-                        com_.startswith("cp") or
-                        com_.startswith("mv") or
                         com_.startswith("cat") or
                         com_.startswith("grep") or
                         com_.startswith("head") or
@@ -140,14 +138,27 @@ def get_input(pathlist, currpath):
                             )
                         except Exception as e:
                             print(f"Error running command: {e}")
+                    elif (com_.startswith("cp") or
+                            com_.startswith("mv")):
+                        com_2 = com_.split(" ")
+                        source = com_2[-1]
+                        dest = com_2[-2]
+                        com_0_li = com_2[:-2]
+                        com_0 = ' '.join(com_0_li)
+                        try:
+                            subprocess.run(
+                                f"{com_0} {source} {dest}",
+                                text=True,
+                                shell=True,
+                                check=True
+                            )
+                        except Exception as e:
+                            print(f"Error running command: {e}")
                     elif (com_.startswith("pwd") or
                           com_.startswith("clear") or
-                            com_.startswith("echo") or
                             com_.startswith("wc") or
                             com_.startswith("df") or
-                            com_.startswith("du") or
-                            com_.startswith("ps") or
-                            com_.startswith("kill")):
+                            com_.startswith("du")):
                         com_0 = com_.split(" ")[0]
                         try:
                             subprocess.run(
