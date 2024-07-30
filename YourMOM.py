@@ -54,20 +54,14 @@ def show_cursor():
 def run_script_in_new_terminal(command):
     try:
         script = f'''
-    tell application "Terminal"
-        set newTab to do script
-        set theWindow to first window of (every window whose tabs contains newTab)
-
-        do script "{command}" in newTab
-        repeat
-            delay 0.05
-            if not busy of newTab then exit repeat
-        end repeat
-
-        repeat with i from 1 to the count of theWindow's tabs
-            if item i of theWindow's tabs is newTab then close theWindow
-        end repeat
-    end tell'''
+tell application "Terminal"
+    activate
+    if (count of windows) < 2 then
+        do script "{command}"
+    else
+        do script "{command}" in window 2
+    end if
+end tell'''
         subprocess.run(['osascript', '-e', script], check=True)
     except Exception as e:
         print(f"Error running command in new terminal: {e}")
@@ -96,7 +90,7 @@ def get_input(pathlist, currpath):
                     currpath = os.path.join(currpath, paths[0])
                     if os.path.isfile(currpath):
                         try:
-                            process = subprocess.run(
+                            subprocess.run(
                                 f"open {currpath}",
                                 text=True,
                                 shell=True,
@@ -119,10 +113,56 @@ def get_input(pathlist, currpath):
                     command.extend(cmdlist)
                     command.append(os.path.join(currpath, cmd[0].strip()))
                     com_ = ' '.join([c for c in command])
-                    try:
-                        run_script_in_new_terminal(com_)
-                    except Exception as e:
-                        print(f"Error running command: {e}")
+                    if (com_.startswith("ls") or
+                        com_.startswith("cd") or
+                        com_.startswith("mkdir") or
+                        com_.startswith("rm") or
+                        com_.startswith("cp") or
+                        com_.startswith("mv") or
+                        com_.startswith("cat") or
+                        com_.startswith("grep") or
+                        com_.startswith("head") or
+                        com_.startswith("tail") or
+                        com_.startswith("sort") or
+                        com_.startswith("uniq") or
+                        com_.startswith("find") or
+                        com_.startswith("chmod") or
+                        com_.startswith("chown") or
+                        com_.startswith("touch") or
+                        com_.startswith("awk") or
+                        com_.startswith("sed")):
+                        try:
+                            subprocess.run(
+                                f"{com_}",
+                                text=True,
+                                shell=True,
+                                check=True
+                            )
+                        except Exception as e:
+                            print(f"Error running command: {e}")
+                    elif (com_.startswith("pwd") or
+                          com_.startswith("clear") or
+                            com_.startswith("echo") or
+                            com_.startswith("wc") or
+                            com_.startswith("df") or
+                            com_.startswith("du") or
+                            com_.startswith("ps") or
+                            com_.startswith("kill")):
+                        com_0 = com_.split(" ")[0]
+                        try:
+                            subprocess.run(
+                                f"{com_0}",
+                                text=True,
+                                shell=True,
+                                check=True
+                            )
+                        except Exception as e:
+                            print(f"Error running command: {e}")
+                    else:
+                        try:
+                            run_script_in_new_terminal(com_)
+                        except Exception as e:
+                            print(f"Error running command: {e}")
                     input_chars = []
                     paths = []
                     pathlist = getdirs(currpath)
