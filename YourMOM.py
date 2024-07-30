@@ -31,9 +31,7 @@ def getdirs(root):
         paths = os.listdir(root)
         for path in paths:
             full_path = os.path.join(root, path)
-            if os.path.isdir(full_path):
-                pathlist.append(path)
-            if os.path.isfile(full_path):
+            if os.path.isdir(full_path) or os.path.isfile(full_path):
                 pathlist.append(path)
     except OSError as e:
         sys.stderr.write(f"Error accessing directory: {e}\n")
@@ -53,12 +51,34 @@ def show_cursor():
     sys.stdout.write('\033[?25h')
     sys.stdout.flush()
 
+def run_script_in_new_terminal(command):
+    try:
+        script = f'''
+    tell application "Terminal"
+        set newTab to do script
+        set theWindow to first window of (every window whose tabs contains newTab)
+
+        do script "{command}" in newTab
+        repeat
+            delay 0.05
+            if not busy of newTab then exit repeat
+        end repeat
+
+        repeat with i from 1 to the count of theWindow's tabs
+            if item i of theWindow's tabs is newTab then close theWindow
+        end repeat
+    end tell'''
+        subprocess.run(['osascript', '-e', script], check=True)
+    except Exception as e:
+        print(f"Error running command in new terminal: {e}")
+
 def get_input(pathlist, currpath):
     fd = sys.stdin.fileno()
     original_settings = termios.tcgetattr(fd)
     input_chars = []
     paths = []
     query = ''
+    
     try:
         hide_cursor()
         tty.setraw(fd)
@@ -68,17 +88,21 @@ def get_input(pathlist, currpath):
             if char == '\n' or char == '\r':
                 clear_current_line()
                 if query == '..':
-                    clear_current_line()
                     currpath = os.path.dirname(currpath)
                     pathlist = update_path(currpath)
                     input_chars = []
                     paths = []
-                if paths:
+                elif paths:
                     currpath = os.path.join(currpath, paths[0])
                     if os.path.isfile(currpath):
                         try:
-                            subprocess.run(['open', currpath], check=True)
-                        except subprocess.CalledProcessError as e:
+                            process = subprocess.run(
+                                f"open {currpath}",
+                                text=True,
+                                shell=True,
+                                check=True
+                            )
+                        except Exception as e:
                             print(f"Error opening file: {e}")
                         clear_current_line()
                         currpath = os.path.dirname(currpath)
@@ -87,17 +111,18 @@ def get_input(pathlist, currpath):
                         paths = []
                     else:
                         pathlist = update_path(currpath)
-                    input_chars = []
+                        input_chars = []
                 elif '::' in query:
                     cmd = query.split('::')
                     cmdlist = cmd[1].split()
                     command = []
                     command.extend(cmdlist)
                     command.append(os.path.join(currpath, cmd[0].strip()))
+                    com_ = ' '.join([c for c in command])
                     try:
-                        subprocess.run(command, check=True)
-                    except subprocess.CalledProcessError as e:
-                        print(f"Error opening file: {e}")
+                        run_script_in_new_terminal(com_)
+                    except Exception as e:
+                        print(f"Error running command: {e}")
                     input_chars = []
                     paths = []
                     pathlist = getdirs(currpath)
@@ -110,16 +135,11 @@ def get_input(pathlist, currpath):
             
             elif char == '\t':
                 input_chars = []
-                input_chars = list(paths[0])
+                if paths:
+                    input_chars = list(paths[0])
 
             elif char == '\x1b':
                 break
-
-            elif query == '..':
-                clear_current_line()
-                currpath = os.path.dirname(currpath)
-                pathlist = update_path(currpath)
-                input_chars = []
 
             else:
                 input_chars.append(char)
