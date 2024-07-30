@@ -54,14 +54,20 @@ def show_cursor():
 def run_script_in_new_terminal(command):
     try:
         script = f'''
-tell application "Terminal"
-    activate
-    if (count of windows) < 2 then
-        do script "{command}"
-    else
-        do script "{command}" in window 2
-    end if
-end tell'''
+    tell application "Terminal"
+        set newTab to do script
+        set theWindow to first window of (every window whose tabs contains newTab)
+
+        do script "{command}" in newTab
+        repeat
+            delay 0.05
+            if not busy of newTab then exit repeat
+        end repeat
+
+        repeat with i from 1 to the count of theWindow's tabs
+            if item i of theWindow's tabs is newTab then close theWindow
+        end repeat
+    end tell'''
         subprocess.run(['osascript', '-e', script], check=True)
     except Exception as e:
         print(f"Error running command in new terminal: {e}")
