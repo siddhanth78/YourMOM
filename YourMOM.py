@@ -213,6 +213,19 @@ def get_input(pathlist, currpath):
                             )
                         except Exception as e:
                             print(f"Error running command: {e}")
+                    elif com_.startswith("-- "):
+                        com_x = com_.split(" ")
+                        com_0 = com_x[1:-1]
+                        com_0x = ' '.join(com_0)
+                        try:
+                            subprocess.run(
+                                f"{com_0x}",
+                                text=True,
+                                shell=True,
+                                check=True
+                            )
+                        except Exception as e:
+                            print(f"Error running command: {e}")
                     else:
                         try:
                             run_script_in_new_terminal(com_)
