@@ -42,16 +42,21 @@ def check_dirs(query, paths):
     return pathli
 
 def clear_current_line():
-    os.system("clear")
+    sys.stdout.write('\r\033[K')
+    sys.stdout.flush()
 
 def display_pathlist(query, paths, currpath):
     clear_current_line()
+    size = os.get_terminal_size()
     query = currpath + '/' + query if query else currpath
+    query_curr = query.split('/')
+    par, chi = query_curr[-2], query_curr[-1]
+    parchilen = len(par) + len(chi) + 7
     if paths:
         suggestions_str = ' | '.join(paths)
-        sys.stdout.write(f"{query} [{suggestions_str}]")
+        sys.stdout.write(f"{par}/{chi} [{suggestions_str[:size.columns-parchilen]+'...' if len(suggestions_str) > size.columns-parchilen else suggestions_str}]")
     else:
-        sys.stdout.write(f"{query}")
+        sys.stdout.write(f"{par}/{chi}")
     sys.stdout.flush()
 
 def getdirs(root):
