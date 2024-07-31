@@ -37,6 +37,8 @@ def check_dirs(query, paths):
     for p in paths:
         if p.startswith(query):
             pathli.append(p)
+    others = [x for x in paths if x not in pathli and query in x]
+    pathli.extend(others)
     return pathli
 
 def clear_current_line():
