@@ -4,6 +4,34 @@ import termios
 import tty
 import subprocess
 
+text_editors = [
+    # Command-line editors
+    "vim",
+    "nano",
+    "emacs",
+    "pico",
+    "ed",
+    "ne",
+    "micro",
+    "joe",
+    "mcedit",
+    
+    # External editors
+    "notepad",  # Windows
+    "gedit",    # GNOME
+    "kate",     # KDE
+    "subl",     # Sublime Text
+    "code",     # Visual Studio Code
+    "atom",     # Atom
+    "notepad++",
+    "textmate", # macOS
+    "bbedit",   # macOS
+    "xed",      # Linux Mint
+    "leafpad",  # Lightweight for various Linux distros
+    "mousepad", # Xfce
+    "pluma"     # MATE
+]
+
 def check_dirs(query, paths):
     pathli = []
     for p in paths:
@@ -78,7 +106,7 @@ def get_input(pathlist, currpath):
     input_chars = []
     paths = []
     query = ''
-    
+    global text_editors
     try:
         hide_cursor()
         tty.setraw(fd)
@@ -119,7 +147,17 @@ def get_input(pathlist, currpath):
                     command.extend(cmdlist)
                     command.append(os.path.join(currpath, cmd[0].strip()))
                     com_ = ' '.join([c for c in command])
-                    if (com_.startswith("ls") or
+                    if com_.split(" ")[0] in text_editors:
+                        try:
+                            subprocess.run(
+                                f"{com_.split(' ')[0]} {currpath}",
+                                text=True,
+                                shell=True,
+                                check=True
+                            )
+                        except Exception as e:
+                            print(f"Error opening file: {e}")
+                    elif (com_.startswith("ls") or
                         com_.startswith("cd") or
                         com_.startswith("mkdir") or
                         com_.startswith("rm") or
