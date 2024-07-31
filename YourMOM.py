@@ -120,7 +120,7 @@ def get_input(pathlist, currpath):
             char = sys.stdin.read(1)
 
             if char == '\n' or char == '\r':
-                clear_current_line()
+                os.system("clear")
                 if query == '..':
                     currpath = os.path.dirname(currpath)
                     pathlist = update_path(currpath)
