@@ -130,12 +130,13 @@ def get_input(pathlist, currpath):
                     currpath = os.path.join(currpath, paths[0])
                     if os.path.isfile(currpath):
                         try:
-                            subprocess.run(
+                            out = subprocess.check_output(
                                 f"open {currpath}",
                                 text=True,
-                                shell=True,
-                                check=True
+                                shell=True
                             )
+                            sys.stdout.write(''.join([a if a != '\n' else '\n\r' for a in out])+'\n')
+                            sys.stdout.flush()
                         except Exception as e:
                             print(f"Error opening file: {e}")
                         clear_current_line()
@@ -155,12 +156,13 @@ def get_input(pathlist, currpath):
                     com_ = ' '.join([c for c in command])
                     if com_.split(" ")[0] in text_editors:
                         try:
-                            subprocess.run(
+                            out = subprocess.check_output(
                                 f"{com_.split(' ')[0]} {currpath}",
                                 text=True,
                                 shell=True,
-                                check=True
                             )
+                            sys.stdout.write(''.join([a if a != '\n' else '\n\r' for a in out])+'\n')
+                            sys.stdout.flush()
                         except Exception as e:
                             print(f"Error opening file: {e}")
                     elif (com_.startswith("ls") or
@@ -180,12 +182,13 @@ def get_input(pathlist, currpath):
                         com_.startswith("awk") or
                         com_.startswith("sed")):
                         try:
-                            subprocess.run(
+                            out = subprocess.check_output(
                                 f"{com_}",
                                 text=True,
                                 shell=True,
-                                check=True
                             )
+                            sys.stdout.write(''.join([a if a != '\n' else '\n\r' for a in out])+'\n')
+                            sys.stdout.flush()
                         except Exception as e:
                             print(f"Error running command: {e}")
                     elif (com_.startswith("cp") or
@@ -196,12 +199,13 @@ def get_input(pathlist, currpath):
                         com_0_li = com_2[:-2]
                         com_0 = ' '.join(com_0_li)
                         try:
-                            subprocess.run(
+                            out = subprocess.check_output(
                                 f"{com_0} {source} {dest}",
                                 text=True,
                                 shell=True,
-                                check=True
                             )
+                            sys.stdout.write(''.join([a if a != '\n' else '\n\r' for a in out])+'\n')
+                            sys.stdout.flush()
                         except Exception as e:
                             print(f"Error running command: {e}")
                     elif (com_.startswith("pwd") or
@@ -211,12 +215,13 @@ def get_input(pathlist, currpath):
                             com_.startswith("du")):
                         com_0 = com_.split(" ")[0]
                         try:
-                            subprocess.run(
+                            out = subprocess.check_output(
                                 f"{com_0}",
                                 text=True,
                                 shell=True,
-                                check=True
                             )
+                            sys.stdout.write(''.join([a if a != '\n' else '\n\r' for a in out])+'\n')
+                            sys.stdout.flush()
                         except Exception as e:
                             print(f"Error running command: {e}")
                     elif com_.startswith("-- "):
@@ -224,12 +229,13 @@ def get_input(pathlist, currpath):
                         com_0 = com_x[1:-1]
                         com_0x = ' '.join(com_0)
                         try:
-                            subprocess.run(
+                            out = subprocess.check_output(
                                 f"{com_0x}",
                                 text=True,
                                 shell=True,
-                                check=True
                             )
+                            sys.stdout.write(''.join([a if a != '\n' else '\n\r' for a in out])+'\n')
+                            sys.stdout.flush()
                         except Exception as e:
                             print(f"Error running command: {e}")
                     else:
