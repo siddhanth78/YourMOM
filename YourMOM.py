@@ -92,7 +92,7 @@ def get_input(pathlist, currpath):
                     pathlist = update_path(currpath)
                     input_chars = []
                     paths = []
-                elif paths:
+                if paths:
                     currpath = os.path.join(currpath, paths[0])
                     if os.path.isfile(currpath):
                         try:
