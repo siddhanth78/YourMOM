@@ -201,7 +201,7 @@ def get_input(pathlist, currpath):
                             print(f"Error running command: {e}")
                     elif com_.startswith("-- "):
                         com_x = com_.split(" ")
-                        com_0 = com_x[1:-1]
+                        com_0 = com_x[1:]
                         com_0x = ' '.join(com_0)
                         try:
                             out = subprocess.check_output(
