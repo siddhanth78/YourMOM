@@ -76,11 +76,15 @@ def update_path(currpath):
     sys.stdout.flush()
     return pathlist
 
-def run_command(command):
+def run_script_in_new_terminal(command):
     try:
-        subprocess.Popen(command, shell=True)
+        # Escape double quotes in the command
+        escaped_command = command.replace('"', '""')
+        # Use 'start' to open a new Command Prompt window and run the command
+        full_command = f'start cmd /K "{escaped_command}"'
+        subprocess.run(full_command, shell=True, check=True)
     except Exception as e:
-        print(f"Error running command: {e}")
+        print(f"Error running command in new terminal: {e}")
 
 def get_input(pathlist, currpath):
     input_chars = []
@@ -113,6 +117,7 @@ def get_input(pathlist, currpath):
                     else:
                         pathlist = update_path(currpath)
                         input_chars = []
+                
                 elif '::' in query:
                     cmd = query.split('::')
                     cmdlist = cmd[1].split()
@@ -121,25 +126,101 @@ def get_input(pathlist, currpath):
                     command.append(os.path.join(currpath, cmd[0].strip()))
                     com_ = ' '.join([c for c in command])
                     if com_.split(" ")[0] in text_editors:
-                        run_command(com_)
+                        try:
+                            out = subprocess.check_output(
+                                f"{com_.split(' ')[0]} {currpath}",
+                                text=True,
+                                shell=True,
+                            )
+                            sys.stdout.write(''.join([a if a != '\n' else '\n\r' for a in out])+'\n')
+                            sys.stdout.flush()
+                        except Exception as e:
+                            print(f"Error opening file: {e}")
                     elif (com_.startswith("dir") or
-                          com_.startswith("cd") or
-                          com_.startswith("mkdir") or
-                          com_.startswith("del") or
-                          com_.startswith("type") or
-                          com_.startswith("findstr") or
-                          com_.startswith("copy") or
-                          com_.startswith("move") or
-                          com_.startswith("ren") or
-                          com_.startswith("attrib")):
-                        os.system(com_)
+                        com_.startswith("cd") or
+                        com_.startswith("mkdir") or
+                        com_.startswith("del") or
+                        com_.startswith("type") or
+                        com_.startswith("findstr") or
+                        com_.startswith("head") or
+                        com_.startswith("tail") or
+                        com_.startswith("sort") or
+                        com_.startswith("find") or
+                        com_.startswith("attrib") or
+                        com_.startswith("touch") or
+                        com_.startswith("echo")):
+                        try:
+                            out = subprocess.check_output(
+                                f"{com_}",
+                                text=True,
+                                shell=True,
+                            )
+                            sys.stdout.write(''.join([a if a != '\n' else '\n\r' for a in out])+'\n')
+                            sys.stdout.flush()
+                        except Exception as e:
+                            print(f"Error running command: {e}")
+                    elif (com_.startswith("copy") or
+                            com_.startswith("move")):
+                        com_2 = com_.split(" ")
+                        source = com_2[-1]
+                        dest = com_2[-2]
+                        com_0_li = com_2[:-2]
+                        com_0 = ' '.join(com_0_li)
+                        try:
+                            out = subprocess.check_output(
+                                f"{com_0} {source} {dest}",
+                                text=True,
+                                shell=True,
+                            )
+                            sys.stdout.write(''.join([a if a != '\n' else '\n\r' for a in out])+'\n')
+                            sys.stdout.flush()
+                        except Exception as e:
+                            print(f"Error running command: {e}")
+                    elif (com_.startswith("echo %cd%") or  # Windows equivalent of pwd
+                        com_.startswith("cls") or
+                            com_.startswith("wc") or
+                            com_.startswith("df") or
+                            com_.startswith("du")):
+                        com_0 = com_.split(" ")[0]
+                        try:
+                            if com_0 == "echo":
+                                out = subprocess.check_output(
+                                    f"echo %cd%",
+                                    text=True,
+                                    shell=True,
+                                )
+                            else:
+                                out = subprocess.check_output(
+                                    f"{com_0}",
+                                    text=True,
+                                    shell=True,
+                                )
+                            sys.stdout.write(''.join([a if a != '\n' else '\n\r' for a in out])+'\n')
+                            sys.stdout.flush()
+                        except Exception as e:
+                            print(f"Error running command: {e}")
+                    elif com_.startswith("-- "):
+                        com_x = com_.split(" ")
+                        com_0 = com_x[1:-1]
+                        com_0x = ' '.join(com_0)
+                        try:
+                            out = subprocess.check_output(
+                                f"{com_0x}",
+                                text=True,
+                                shell=True,
+                            )
+                            sys.stdout.write(''.join([a if a != '\n' else '\n\r' for a in out])+'\n')
+                            sys.stdout.flush()
+                        except Exception as e:
+                            print(f"Error running command: {e}")
                     else:
-                        run_command(f"start cmd /k {com_}")
+                        try:
+                            run_script_in_new_terminal(com_)
+                        except Exception as e:
+                            print(f"Error running command: {e}")
                     input_chars = []
                     paths = []
                     pathlist = getdirs(currpath)
-                else:
-                    pass
 
             elif char == b'\x08':  # Backspace
                 if input_chars:
