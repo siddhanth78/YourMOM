@@ -214,10 +214,10 @@ def get_input(pathlist, currpath):
 
 def main():
     os.system('clear')
-    pathlist = getdirs(os.getcwd())
-    sys.stdout.write(os.getcwd())
+    pathlist = getdirs(os.path.expanduser("~"))
+    sys.stdout.write(os.path.expanduser("~"))
     sys.stdout.flush()
-    get_input(pathlist, os.getcwd())
+    get_input(pathlist, (os.path.expanduser("~")))
 
 if __name__ == '__main__':
     main()
