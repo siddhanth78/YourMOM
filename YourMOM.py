@@ -42,8 +42,7 @@ def check_dirs(query, paths):
     return pathli
 
 def clear_current_line():
-    sys.stdout.write('\r\033[K')
-    sys.stdout.flush()
+    os.system("clear")
 
 def display_pathlist(query, paths, currpath):
     clear_current_line()
